@@ -96,13 +96,23 @@ Compiles to `pdf-tools/SKILL.md`. The source already sits in the strict target s
 
 ## Compatibility
 
-A compiled `SKILL.md` is loadable by the major agentskills.io v1 consumers:
+Five runtimes are verified end-to-end via reproducible kits in [`compat/`](compat/). Each kit ships a dedicated `.mda` source, a structural `verify.sh` that compiles and validates against the SKILL.md schema, an `install.sh` that lands the artifact in the runtime's discovery path, and a `notes.md` that records the empirical proof and any known authoring gaps.
 
-- **Claude Code** — https://code.claude.com/docs/en/skills
-- **OpenCode** — https://opencode.ai/docs/skills/
-- **OpenAI Codex** — https://developers.openai.com/codex/skills
-- **Hermes Agent** — https://hermes-agent.nousresearch.com/docs/user-guide/features/skills
-- **OpenClaw** — https://docs.openclaw.ai/tools/skills
+[![Claude Code — verified](https://img.shields.io/badge/Claude_Code-verified-brightgreen?logo=anthropic&logoColor=white)](compat/claude-code/)
+[![Codex CLI — verified](https://img.shields.io/badge/Codex_CLI-verified-brightgreen?logo=openai&logoColor=white)](compat/codex-cli/)
+[![OpenCode — verified](https://img.shields.io/badge/OpenCode-verified-brightgreen)](compat/opencode/)
+[![Hermes Agent — verified](https://img.shields.io/badge/Hermes_Agent-verified-brightgreen)](compat/hermes/)
+[![OpenClaw — verified](https://img.shields.io/badge/OpenClaw-verified-brightgreen)](compat/openclaw/)
+
+Each badge links to a per-runtime kit with reproducible verify + install scripts.
+
+A compiled `SKILL.md` is also loadable by the broader agentskills.io v1 ecosystem, with documentation-level claims for runtimes outside the five above:
+
+- **Claude Code** — https://code.claude.com/docs/en/skills · [`compat/claude-code/`](compat/claude-code/)
+- **OpenCode** — https://opencode.ai/docs/skills/ · [`compat/opencode/`](compat/opencode/)
+- **OpenAI Codex** — https://developers.openai.com/codex/skills · [`compat/codex-cli/`](compat/codex-cli/)
+- **Hermes Agent** — https://hermes-agent.nousresearch.com/docs/user-guide/features/skills · [`compat/hermes/`](compat/hermes/)
+- **OpenClaw** — https://docs.openclaw.ai/cli/skills · [`compat/openclaw/`](compat/openclaw/)
 - **skills.sh / Skills Directory** — https://www.skillsdirectory.com/
 - **Cursor**, **Windsurf**, and other 2026 SKILL.md consumers
 
