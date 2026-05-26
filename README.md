@@ -96,23 +96,18 @@ Compiles to `pdf-tools/SKILL.md`. The source already sits in the strict target s
 
 ## Compatibility
 
-Five runtimes are verified end-to-end via reproducible kits in [`compat/`](compat/). Each kit ships a dedicated `.mda` source, a structural `verify.sh` that compiles and validates against the SKILL.md schema, an `install.sh` that lands the artifact in the runtime's discovery path, and a `notes.md` that records the empirical proof and any known authoring gaps.
+Verified end-to-end with the top 5 SKILL.md runtimes of 2026:
 
-[![Claude Code — verified](https://img.shields.io/badge/Claude_Code-verified-brightgreen?logo=anthropic&logoColor=white)](compat/claude-code/)
-[![Codex CLI — verified](https://img.shields.io/badge/Codex_CLI-verified-brightgreen?logo=openai&logoColor=white)](compat/codex-cli/)
-[![OpenCode — verified](https://img.shields.io/badge/OpenCode-verified-brightgreen)](compat/opencode/)
-[![Hermes Agent — verified](https://img.shields.io/badge/Hermes_Agent-verified-brightgreen)](compat/hermes/)
-[![OpenClaw — verified](https://img.shields.io/badge/OpenClaw-verified-brightgreen)](compat/openclaw/)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-D97757?style=for-the-badge&logo=anthropic&logoColor=white)](compat/claude-code/)
+[![Codex CLI](https://img.shields.io/badge/Codex%20CLI-compatible-10A37F?style=for-the-badge&logo=openai&logoColor=white)](compat/codex-cli/)
+[![OpenCode](https://img.shields.io/badge/OpenCode-compatible-3B82F6?style=for-the-badge)](compat/opencode/)
+[![Hermes Agent](https://img.shields.io/badge/Hermes%20Agent-compatible-F59E0B?style=for-the-badge)](compat/hermes/)
+[![OpenClaw](https://img.shields.io/badge/OpenClaw-compatible-EA580C?style=for-the-badge)](compat/openclaw/)
 
-Each badge links to a per-runtime kit with reproducible verify + install scripts.
+Each badge links to a per-runtime kit under [`compat/`](compat/) with a reproducible `verify.sh`, an `install.sh` that lands an MDA-emitted `SKILL.md` in the runtime's discovery path, and `notes.md` documenting the empirical proof and known authoring gaps.
 
-A compiled `SKILL.md` is also loadable by the broader agentskills.io v1 ecosystem, with documentation-level claims for runtimes outside the five above:
+A compiled `SKILL.md` is also loadable by the broader agentskills.io v1 ecosystem at the documentation level (no per-runtime kit yet):
 
-- **Claude Code** — https://code.claude.com/docs/en/skills · [`compat/claude-code/`](compat/claude-code/)
-- **OpenCode** — https://opencode.ai/docs/skills/ · [`compat/opencode/`](compat/opencode/)
-- **OpenAI Codex** — https://developers.openai.com/codex/skills · [`compat/codex-cli/`](compat/codex-cli/)
-- **Hermes Agent** — https://hermes-agent.nousresearch.com/docs/user-guide/features/skills · [`compat/hermes/`](compat/hermes/)
-- **OpenClaw** — https://docs.openclaw.ai/cli/skills · [`compat/openclaw/`](compat/openclaw/)
 - **skills.sh / Skills Directory** — https://www.skillsdirectory.com/
 - **Cursor**, **Windsurf**, and other 2026 SKILL.md consumers
 
