@@ -1,5 +1,5 @@
 import { existsSync, rmSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 
 import { EXIT, commandResult, diag, ioError, usage, type Diagnostic, type Globals, type Target } from '../types.js';
 import {
@@ -84,6 +84,127 @@ export function runInit(args: string[], globals: Globals) {
 		name,
 		out,
 		written: Boolean(out),
+	});
+}
+
+export function runDemo(args: string[]) {
+	const parsed = parseOptions(args);
+	const err = unknownOptions(parsed, ['--out-dir']);
+	if (err) return usage('demo', err);
+	if (parsed.positional.length !== 0) return usage('demo', 'mda demo takes no positional arguments');
+
+	const outDir = oneOption(parsed.options, '--out-dir') ?? 'mda-demo';
+	const sourcePath = join(outDir, 'hello.mda');
+	const compileDir = join(outDir, 'out');
+	const skillPath = join(compileDir, 'SKILL.md');
+	const agentsPath = join(compileDir, 'AGENTS.md');
+	const mcpServerPath = join(compileDir, 'MCP-SERVER.md');
+	const mcpSidecarPath = join(compileDir, 'mcp-server.json');
+	const allPaths = [sourcePath, skillPath, agentsPath, mcpServerPath, mcpSidecarPath];
+
+	for (const path of allPaths) {
+		if (existsSync(path)) {
+			return ioError('demo', `Refusing to overwrite existing file: ${path}`, {
+				outDir,
+				planned: allPaths,
+				written: [],
+			});
+		}
+	}
+
+	const scaffold = makeScaffold('hello-skill');
+	try {
+		atomicWrite(sourcePath, scaffold);
+	} catch (error) {
+		return ioError('demo', error instanceof Error ? error.message : String(error), {
+			outDir,
+			planned: allPaths,
+			written: [],
+		});
+	}
+
+	const sourceRead = readArtifact(sourcePath);
+	if (!sourceRead.ok || sourceRead.extract.kind !== 'ok' || !isRecord(sourceRead.extract.frontmatter)) {
+		rmSync(sourcePath, { force: true });
+		return commandResult(false, 'demo', EXIT.internal, [diag('demo.scaffold_invalid', 'Generated demo scaffold failed to parse')], {
+			summary: 'Demo aborted: scaffold did not round-trip',
+			outDir,
+			written: [],
+		});
+	}
+
+	const targets: Target[] = ['SKILL.md', 'AGENTS.md', 'MCP-SERVER.md'];
+	const staged = compileTargets(sourceRead.extract.frontmatter, sourceRead.extract.body, targets, compileDir, true);
+	if (!staged.ok) {
+		rmSync(sourcePath, { force: true });
+		return commandResult(false, 'demo', EXIT.failure, staged.diagnostics, {
+			summary: 'Demo aborted: compile planning failed',
+			outDir,
+			planned: allPaths,
+			written: [],
+		});
+	}
+
+	const written: string[] = [sourcePath];
+	try {
+		for (const output of staged.outputs) {
+			atomicWrite(output.path, output.bytes);
+			written.push(output.path);
+		}
+	} catch (error) {
+		const rolledBack: string[] = [];
+		const rollbackDiagnostics: Diagnostic[] = [];
+		for (const path of written) {
+			try {
+				rmSync(path, { force: true });
+				rolledBack.push(path);
+			} catch (rollbackError) {
+				rollbackDiagnostics.push(
+					diag('rollback-error', rollbackError instanceof Error ? rollbackError.message : String(rollbackError), { path }),
+				);
+			}
+		}
+		return commandResult(
+			false,
+			'demo',
+			EXIT.io,
+			[diag('io-error', error instanceof Error ? error.message : String(error)), ...rollbackDiagnostics],
+			{
+				summary: 'Demo failed while writing outputs',
+				outDir,
+				planned: allPaths,
+				written: [],
+				rolledBack,
+			},
+		);
+	}
+
+	return commandResult(true, 'demo', EXIT.ok, [], {
+		summary: `Generated MDA demo at ${outDir}`,
+		artifacts: [
+			artifact('mda-source', sourcePath, 'source'),
+			...staged.outputs.map((o) => artifact('compiled-output', o.path, targetForPath(o.path))),
+		],
+		nextActions: [
+			nextAction('inspect-demo-output', 'Read the compiled SKILL.md to see the emitted format', `cat ${skillPath}`),
+			nextAction(
+				'recompile-demo-source',
+				'Edit the source and recompile to refresh the outputs',
+				`mda compile ${sourcePath} --target SKILL.md AGENTS.md MCP-SERVER.md --out-dir ${compileDir} --integrity`,
+				false,
+			),
+			nextAction(
+				'verify-demo-integrity',
+				'Verify the integrity digest on a compiled output',
+				`mda integrity verify ${skillPath} --target SKILL.md`,
+				false,
+			),
+		],
+		message: `wrote ${written.length} file(s) under ${outDir}`,
+		outDir,
+		sourcePath,
+		compileDir,
+		written,
 	});
 }
 

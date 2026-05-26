@@ -419,7 +419,7 @@ function runLlmixTrustManifest(args: string[], command = 'release finalize') {
 					nextAction(
 						'use-registry-root-from-registry',
 						'Pass the signed registry-root evidence from the selected registry directory',
-						`mda release finalize --target llmix-registry --registry-dir ${registryDir} --registry-root ${registryDir}/snapshots/current/registry-root.json --release-plan ${releasePlanPath} --policy ${policyPath} --derive-root-digest --out ${out}`,
+						`mda release finalize --target llmix-registry --registry-dir ${registryDir} --registry-root ${registryDir}/compiled/<revision>/registry-root.json --release-plan ${releasePlanPath} --policy ${policyPath} --derive-root-digest --out ${out}`,
 					),
 				],
 				registryDir,
@@ -1032,7 +1032,7 @@ type RegistryRootEvidence = {
 type NativeRegistryRootFile = {
 	path: string;
 	sha256: string;
-	role: 'authoring' | 'resolved';
+	role: 'source' | 'resolved';
 };
 
 type ReleasePlanEvidence = {
@@ -1186,9 +1186,9 @@ function parseNativeRegistryRootFiles(value: unknown, diagnostics: ReturnType<ty
 			diagnostics.push(diag('llmix.registry_root_invalid', `Native registry-root files[${index}].path must be a non-empty string`));
 		if (typeof sha256 !== 'string' || !SHA256_HEX.test(sha256))
 			diagnostics.push(diag('llmix.registry_root_invalid', `Native registry-root files[${index}].sha256 must be a sha256 hex digest`));
-		if (role !== 'authoring' && role !== 'resolved')
-			diagnostics.push(diag('llmix.registry_root_invalid', `Native registry-root files[${index}].role must be authoring or resolved`));
-		if (typeof path !== 'string' || typeof sha256 !== 'string' || (role !== 'authoring' && role !== 'resolved')) continue;
+		if (role !== 'source' && role !== 'resolved')
+			diagnostics.push(diag('llmix.registry_root_invalid', `Native registry-root files[${index}].role must be source or resolved`));
+		if (typeof path !== 'string' || typeof sha256 !== 'string' || (role !== 'source' && role !== 'resolved')) continue;
 		if (seen.has(path)) {
 			diagnostics.push(diag('llmix.registry_root_invalid', `Native registry-root contains duplicate file path ${path}`));
 			continue;
@@ -1373,7 +1373,7 @@ function nativeSourceSetDiagnostics(root: RegistryRootEvidence, releasePlan: Rel
 	if (!registryDir) {
 		return [diag('release.registry_dir_required', '--registry-dir <dir> is required to verify native registry-root file coverage')];
 	}
-	const authoringPaths = new Map<string, string>();
+	const sourcePaths = new Map<string, string>();
 	const resolvedPaths = new Set<string>();
 	for (const file of root.files) {
 		const candidate = resolve(registryDir, file.path);
@@ -1393,9 +1393,9 @@ function nativeSourceSetDiagnostics(root: RegistryRootEvidence, releasePlan: Rel
 			diagnostics.push(diag('filesystem.io', error instanceof Error ? error.message : String(error), { path: candidate }));
 			continue;
 		}
-		if (file.role === 'authoring') {
+		if (file.role === 'source') {
 			const digest = `sha256:${file.sha256}`;
-			authoringPaths.set(file.path, digest);
+			sourcePaths.set(file.path, digest);
 		} else {
 			resolvedPaths.add(file.path);
 		}
@@ -1415,18 +1415,17 @@ function nativeSourceSetDiagnostics(root: RegistryRootEvidence, releasePlan: Rel
 			diagnostics.push(diag('llmix.release_plan_invalid', `Release plan source ${identity} is missing module or preset`));
 			continue;
 		}
-		const nativeAuthoringPath = `snapshots/${root.revision}/authoring/${source.module}/${source.preset}.mda`;
-		const nativeAuthoringDigest = authoringPaths.get(nativeAuthoringPath);
-		if (!nativeAuthoringDigest) {
-			diagnostics.push(diag('llmix.registry_root_missing_preset', `Native registry-root is missing authoring source for ${identity}`));
-		} else if (sourceRawDigest && nativeAuthoringDigest !== sourceRawDigest) {
+		const nativeSourcePath = `compiled/${root.revision}/source/${source.module}/${source.preset}.mda`;
+		const nativeSourceDigest = sourcePaths.get(nativeSourcePath);
+		if (!nativeSourceDigest) {
+			diagnostics.push(diag('llmix.registry_root_missing_preset', `Native registry-root is missing source preset for ${identity}`));
+		} else if (sourceRawDigest && nativeSourceDigest !== sourceRawDigest) {
 			diagnostics.push(
-				diag('llmix.registry_root_stale_digest', `Native registry-root authoring digest for ${identity} does not match the release plan`),
+				diag('llmix.registry_root_stale_digest', `Native registry-root source digest for ${identity} does not match the release plan`),
 			);
 		}
-		const nativeResolvedPath = `snapshots/${root.revision}/resolved/${source.module}/${source.preset}.json`;
-		const legacyResolvedPath = typeof source.expectedRegistryEntryPath === 'string' ? source.expectedRegistryEntryPath : null;
-		if (!resolvedPaths.has(nativeResolvedPath) && (!legacyResolvedPath || !resolvedPaths.has(legacyResolvedPath))) {
+		const nativeResolvedPath = `compiled/${root.revision}/resolved/${source.module}/${source.preset}.json`;
+		if (!resolvedPaths.has(nativeResolvedPath)) {
 			diagnostics.push(diag('llmix.registry_root_missing_preset', `Native registry-root is missing resolved config for ${identity}`));
 		}
 	}

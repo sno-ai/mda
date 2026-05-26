@@ -6,6 +6,7 @@ Usage:
   mda --version
   mda init <name> [--out <file>] [--json]
   mda init --template llmix-preset --module <name> --preset <name> --provider <provider> --model <model> [--out <file>] [--json]
+  mda demo [--out-dir <dir>] [--json]
   mda validate <file> [--target source|SKILL.md|AGENTS.md|MCP-SERVER.md|auto] [--json]
   mda compile <file.mda> --target <target...> [--out-dir <dir>] [--integrity] [--manifest <path>] [--strict-compat] [--json]
   mda canonicalize <file> [--target source|SKILL.md|AGENTS.md|MCP-SERVER.md|auto] [--sidecar <path>] [--json]
@@ -42,6 +43,10 @@ Commands and options:
     --preset <name>              LLMix preset name, e.g. openai_fast or _base.
     --provider <provider>        openai, anthropic, google, deepseek, openrouter, deepinfra, novita, together, or sno-gpu.
     --model <model>              Provider model identifier.
+
+  demo
+    --out-dir <dir>              Output directory for the demo source and compiled outputs. Default: mda-demo.
+                                 Writes hello.mda plus out/SKILL.md, out/AGENTS.md, out/MCP-SERVER.md, out/mcp-server.json with integrity.
 
   validate <file>
     --target <target>            source, SKILL.md, AGENTS.md, MCP-SERVER.md, or auto. Default: auto.
@@ -144,6 +149,7 @@ Commands and options:
 Examples:
   mda init hello-skill --out hello.mda
   mda init --template llmix-preset --module search_summary --preset openai_fast --provider openai --model gpt-5-mini --out search_summary/openai_fast.mda
+  mda demo
   mda validate hello.mda --json
   mda compile hello.mda --target SKILL.md AGENTS.md MCP-SERVER.md --out-dir out --integrity --manifest out/compile-manifest.json
   mda canonicalize out/SKILL.md --target SKILL.md --json
@@ -151,10 +157,10 @@ Examples:
   mda integrity verify out/SKILL.md --target SKILL.md
   mda verify signed.md --policy policy.json --json
   mda release trust policy --target llmix-registry --profile github-actions --repo owner/repo --workflow release.yml --ref refs/heads/main --out release/source-policy.json --json
-  mda release prepare --target llmix-registry --source authoring --registry-dir registry --policy release/source-policy.json --out release/plan.json --json
-  mda release finalize --target llmix-registry --registry-dir registry --registry-root registry/snapshots/current/registry-root.json --release-plan release/plan.json --policy release/root-policy.json --derive-root-digest --out release/llmix-trust.json --json
-  mda release finalize --target llmix-registry --registry-dir registry --manifest release/llmix-trust.json --snippet-format json --snippet-out release/llmix-trust-snippet.json --json
-  mda doctor release --target llmix-registry --source authoring --registry-dir registry --release-plan release/plan.json --manifest release/llmix-trust.json --did-document did.json --json
+  mda release prepare --target llmix-registry --source config/llm/source --registry-dir config/llm --policy release/source-policy.json --out release/plan.json --json
+  mda release finalize --target llmix-registry --registry-dir config/llm --registry-root config/llm/compiled/<revision>/registry-root.json --release-plan release/plan.json --policy release/root-policy.json --derive-root-digest --out release/llmix-trust.json --json
+  mda release finalize --target llmix-registry --registry-dir config/llm --manifest release/llmix-trust.json --snippet-format json --snippet-out release/llmix-trust-snippet.json --json
+  mda doctor release --target llmix-registry --source config/llm/source --registry-dir config/llm --release-plan release/plan.json --manifest release/llmix-trust.json --did-document did.json --json
   mda conformance --suite conformance --level V --json
 
 Exit codes:

@@ -147,7 +147,48 @@ const initStdout = run(['init', 'hello-skill']);
 assert.equal(initStdout.status, 0);
 assert.match(initStdout.stdout, /^---\nname: "hello-skill"/);
 
-const llmixDir = join(tmp, 'authoring', 'search_summary');
+const demoOutDir = join(tmp, 'demo-out');
+const demoResult = json(['demo', '--out-dir', demoOutDir]);
+assert.equal(demoResult.ok, true);
+assert.equal(demoResult.summary, `Generated MDA demo at ${demoOutDir}`);
+assert.equal(demoResult.outDir, demoOutDir);
+assert.equal(demoResult.written.length, 5);
+assert.equal(demoResult.written[0], join(demoOutDir, 'hello.mda'));
+assert.deepEqual(
+	demoResult.artifacts.map((a) => a.path),
+	[
+		join(demoOutDir, 'hello.mda'),
+		join(demoOutDir, 'out', 'SKILL.md'),
+		join(demoOutDir, 'out', 'AGENTS.md'),
+		join(demoOutDir, 'out', 'MCP-SERVER.md'),
+		join(demoOutDir, 'out', 'mcp-server.json'),
+	],
+);
+assert.equal(demoResult.nextActions[0].id, 'inspect-demo-output');
+for (const filePath of demoResult.written) assert.ok(existsSync(filePath), `demo wrote ${filePath}`);
+assert.match(readFileSync(join(demoOutDir, 'out', 'SKILL.md'), 'utf8'), /integrity:\n  algorithm: sha256\n  digest: sha256:[a-f0-9]{64}/);
+
+const demoRefuse = json(['demo', '--out-dir', demoOutDir], 3);
+assert.equal(demoRefuse.diagnostics[0].code, 'filesystem.io');
+
+const demoCwd = mkdtempSync(join(tmpdir(), 'mda-e2e-demo-cwd-'));
+const demoDefaultRun = run(['demo', '--json'], { cwd: demoCwd });
+assert.equal(demoDefaultRun.status, 0);
+const demoDefault = JSON.parse(demoDefaultRun.stdout);
+assert.equal(demoDefault.ok, true);
+assert.equal(demoDefault.outDir, 'mda-demo');
+assert.ok(existsSync(join(demoCwd, 'mda-demo', 'hello.mda')));
+assert.ok(existsSync(join(demoCwd, 'mda-demo', 'out', 'SKILL.md')));
+
+const demoHuman = run(['demo', '--out-dir', join(tmp, 'demo-human')]);
+assert.equal(demoHuman.status, 0);
+assert.match(demoHuman.stdout, /wrote 5 file\(s\) under /);
+assert.match(demoHuman.stdout, /Next:/);
+
+const demoUnknownPositional = json(['demo', 'extra'], 2);
+assert.equal(demoUnknownPositional.diagnostics[0].code, 'input.usage');
+
+const llmixDir = join(tmp, 'config', 'llm', 'source', 'search_summary');
 const llmixSource = join(llmixDir, 'openai_fast.mda');
 const llmixInit = json([
 	'init',
@@ -1067,7 +1108,7 @@ const duplicateReleasePlan = json(
 assert.ok(duplicateReleasePlan.diagnostics.some((diagnostic) => diagnostic.code === 'llmix.duplicate_registry_entry'));
 assert.equal(existsSync(duplicateReleaseOut), false);
 
-const registryRootDir = join(registryDir, 'snapshots', '2026-05-09T120000Z');
+const registryRootDir = join(registryDir, 'compiled', '2026-05-09T120000Z');
 mkdirSync(registryRootDir, { recursive: true });
 const registryRootPath = join(registryRootDir, 'registry-root.json');
 const registryRootBody = {
@@ -1101,7 +1142,7 @@ const registryRoot = {
 };
 writeFileSync(registryRootPath, JSON.stringify(registryRoot, null, 2));
 const otherRegistryDir = join(tmp, 'other-registry');
-const otherRegistryRootDir = join(otherRegistryDir, 'snapshots', '2026-05-09T120000Z');
+const otherRegistryRootDir = join(otherRegistryDir, 'compiled', '2026-05-09T120000Z');
 mkdirSync(otherRegistryRootDir, { recursive: true });
 const otherRegistryRootPath = join(otherRegistryRootDir, 'registry-root.json');
 writeFileSync(otherRegistryRootPath, JSON.stringify(registryRoot, null, 2));
@@ -1148,30 +1189,30 @@ assert.equal(trustManifest.minimumPublishedAt, '2026-05-09T12:00:00Z');
 assert.equal(trustManifest.highWatermark, '2026-05-09T120000Z');
 
 const nativeRevision = '2026-05-10T120000Z';
-const nativeSnapshotDir = join(registryDir, 'snapshots', nativeRevision);
-const nativeAuthoringPath = join(nativeSnapshotDir, 'authoring', 'search_summary', 'openai_fast.mda');
-const nativeResolvedPath = join(nativeSnapshotDir, 'resolved', 'search_summary', 'openai_fast.json');
-mkdirSync(join(nativeSnapshotDir, 'authoring', 'search_summary'), { recursive: true });
-mkdirSync(join(nativeSnapshotDir, 'resolved', 'search_summary'), { recursive: true });
-writeFileSync(nativeAuthoringPath, readFileSync(releaseSourceFile));
+const nativeCompiledDir = join(registryDir, 'compiled', nativeRevision);
+const nativeSourcePath = join(nativeCompiledDir, 'source', 'search_summary', 'openai_fast.mda');
+const nativeResolvedPath = join(nativeCompiledDir, 'resolved', 'search_summary', 'openai_fast.json');
+mkdirSync(join(nativeCompiledDir, 'source', 'search_summary'), { recursive: true });
+mkdirSync(join(nativeCompiledDir, 'resolved', 'search_summary'), { recursive: true });
+writeFileSync(nativeSourcePath, readFileSync(releaseSourceFile));
 writeFileSync(nativeResolvedPath, `${stableJson({ model: 'gpt-5-mini', provider: 'openai' })}\n`);
-const nativeAuthoringRel = `snapshots/${nativeRevision}/authoring/search_summary/openai_fast.mda`;
-const nativeResolvedRel = `snapshots/${nativeRevision}/resolved/search_summary/openai_fast.json`;
-const nativeManifestRel = `snapshots/${nativeRevision}/manifest.json`;
+const nativeSourceRel = `compiled/${nativeRevision}/source/search_summary/openai_fast.mda`;
+const nativeResolvedRel = `compiled/${nativeRevision}/resolved/search_summary/openai_fast.json`;
+const nativeManifestRel = `compiled/${nativeRevision}/manifest.json`;
 const nativeManifest = {
 	revision: nativeRevision,
 	published_at: '2026-05-10T12:00:00.000Z',
 	schema_version: 1,
 	presets: {
 		'search_summary/openai_fast': {
-			authoring_path: 'authoring/search_summary/openai_fast.mda',
-			authoring_sha256: sha256Hex(readFileSync(nativeAuthoringPath)),
+			source_path: 'source/search_summary/openai_fast.mda',
+			source_sha256: sha256Hex(readFileSync(nativeSourcePath)),
 			resolved_path: 'resolved/search_summary/openai_fast.json',
 			resolved_sha256: sha256Hex(readFileSync(nativeResolvedPath)),
 		},
 	},
 };
-const nativeManifestPath = join(nativeSnapshotDir, 'manifest.json');
+const nativeManifestPath = join(nativeCompiledDir, 'manifest.json');
 writeFileSync(nativeManifestPath, `${JSON.stringify(nativeManifest, null, 2)}\n`);
 const nativeManifestSha = sha256Hex(readFileSync(nativeManifestPath));
 const nativeCurrent = { revision: nativeRevision, manifest_sha256: nativeManifestSha };
@@ -1193,7 +1234,7 @@ const nativePayload = {
 		sha256: nativeManifestSha,
 	},
 	files: [
-		{ path: nativeAuthoringRel, sha256: sha256Hex(readFileSync(nativeAuthoringPath)), role: 'authoring' },
+		{ path: nativeSourceRel, sha256: sha256Hex(readFileSync(nativeSourcePath)), role: 'source' },
 		{ path: nativeResolvedRel, sha256: sha256Hex(readFileSync(nativeResolvedPath)), role: 'resolved' },
 	],
 };
@@ -1216,7 +1257,7 @@ const nativeEnvelope = {
 		},
 	],
 };
-const nativeRegistryRootPath = join(nativeSnapshotDir, 'registry-root.json');
+const nativeRegistryRootPath = join(nativeCompiledDir, 'registry-root.json');
 writeFileSync(nativeRegistryRootPath, `${JSON.stringify(nativeEnvelope, null, 2)}\n`);
 const nativeRegistryRootDigest = digestBytes(readFileSync(nativeRegistryRootPath));
 const nativeTrustManifestOut = join(tmp, 'release', 'llmix-native-trust.json');
@@ -1246,7 +1287,7 @@ const nativeTrustManifest = JSON.parse(readFileSync(nativeTrustManifestOut, 'utf
 assert.equal(nativeTrustManifest.expectedRootDigest, nativeRegistryRootDigest);
 assert.equal(nativeTrustManifest.registryRoot.revision, nativeRevision);
 
-const tamperedNativePayloadDigestPath = join(nativeSnapshotDir, 'registry-root-bad-payload-digest.json');
+const tamperedNativePayloadDigestPath = join(nativeCompiledDir, 'registry-root-bad-payload-digest.json');
 writeFileSync(tamperedNativePayloadDigestPath, `${JSON.stringify({ ...nativeEnvelope, payload_sha256: '0'.repeat(64) }, null, 2)}\n`);
 const tamperedNativePayloadDigest = json(
 	[
@@ -1272,7 +1313,7 @@ const tamperedNativePayloadDigest = json(
 );
 assert.ok(tamperedNativePayloadDigest.diagnostics.some((diagnostic) => diagnostic.code === 'integrity.mismatch'));
 
-const badPayloadTypePath = join(nativeSnapshotDir, 'registry-root-bad-payload-type.json');
+const badPayloadTypePath = join(nativeCompiledDir, 'registry-root-bad-payload-type.json');
 writeFileSync(
 	badPayloadTypePath,
 	`${JSON.stringify(
@@ -1314,7 +1355,7 @@ const badPayloadType = json(
 );
 assert.ok(badPayloadType.diagnostics.some((diagnostic) => diagnostic.code === 'signature.payload_type_mismatch'));
 
-const badFileDigestPath = join(nativeSnapshotDir, 'registry-root-bad-file-digest.json');
+const badFileDigestPath = join(nativeCompiledDir, 'registry-root-bad-file-digest.json');
 const badFileDigestPayload = {
 	...nativePayload,
 	files: [nativePayload.files[0], { ...nativePayload.files[1], sha256: '1'.repeat(64) }],
@@ -1492,7 +1533,7 @@ for (const format of snippetFormats) {
 			'<RELEASE_PLAN>': releasePlanOut,
 		}),
 		readFileSync(snippetGoldenPath(format), 'utf8'),
-		`${format} snippet golden snapshot`,
+			`${format} snippet golden output`,
 	);
 	assert.match(snippetContent, /LLMIX_TRUST_MANIFEST/);
 	assert.match(snippetContent, /sha256:/);
