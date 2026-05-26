@@ -9,8 +9,6 @@ created-date: "2026-05-07T00:00:00Z"
 metadata:
   mda:
     version: "1.0.0"
-  claude-code:
-    allowed-tools: "Read"
 ---
 
 # Intro

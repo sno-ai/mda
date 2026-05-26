@@ -65,6 +65,22 @@ No other top-level fields are permitted in the output. The schema enforces this 
 
 `doc-id`, `title`, `version`, `requires`, `relationships`, `depends-on`, `created-date`, `updated-date`, `author`, `tags`.
 
+### §06-3.4 Out of scope: runtime-specific top-level fields
+
+MDA v1.0's SKILL.md schema covers the **agentskills.io v1 envelope subset** (§06-3.1, §06-3.2) plus MDA's own `integrity` and `signatures`. Individual Tier-1 consumers extend that surface with runtime-specific top-level fields that are not part of agentskills.io v1.
+
+Notably, Claude Code documents 15 top-level frontmatter fields (https://code.claude.com/docs/en/skills). Eleven of those are runtime-specific and outside agentskills.io v1: `when_to_use`, `argument-hint`, `arguments`, `disable-model-invocation`, `user-invocable`, `model`, `effort`, `context`, `agent`, `hooks`, `paths`, `shell`.
+
+In MDA v1.0:
+
+- These runtime-specific fields are out of scope. The compiler does not emit them and the validator rejects them at the top level under `unevaluatedProperties: false`.
+- A SKILL.md hand-edited to include these fields post-compile is no longer an MDA-validated artifact; it is a vendor-specific extension of the compiled output.
+- A SKILL.md source that needs those fields today either (a) ships the agentskills.io v1 subset under MDA and accepts a post-compile hand-edit, or (b) authors the SKILL.md directly in Human or Agent mode (§0.6) without round-tripping through MDA validation.
+
+The v1.0 boundary is deliberate. MDA freezes the cross-runtime portable subset; per-runtime feature expansion is a v1.x concern driven by observed adoption. Graduation of this gap to a future minor release is tracked in `docs/v1.0/what-v1.0-does-not-ship.md`.
+
+The same scope statement applies in principle to other Tier-1 SKILL.md consumers (OpenCode, Codex, Hermes Agent, Cursor, Windsurf) when and where they extend the envelope. v1.0 does not enumerate their runtime-specific fields.
+
 ## §06-4 Body
 
 The Markdown body following the frontmatter:

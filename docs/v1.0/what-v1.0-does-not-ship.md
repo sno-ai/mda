@@ -4,7 +4,7 @@ v1.0 is in release-candidate review at `v1.0.0-rc.3`. That candidate covers the 
 
 The consumer side is a different story. The verifiers, resolvers, indexers, harnesses — the things that actually enforce or route through that contract — are mostly nascent. This page is the gap.
 
-## The nine gaps
+## The ten gaps
 
 1. **No central artifact registry** (§0.2). MDA does not host or mandate a registry of `.mda` artifacts. Resolution stays operator-defined.
 
@@ -24,9 +24,11 @@ The consumer side is a different story. The verifiers, resolvers, indexers, harn
 
 9. **No coverage of Cursor MDC, Windsurf rules, Continue, Aider, or `*.instructions.md`** as compile targets in v1.0. MDA targets the agentskills.io v1 ecosystem (`SKILL.md`) and the AAIF-aligned ecosystem (`AGENTS.md`, `MCP-SERVER.md`). Other 2026 skill-format families still need parallel maintenance.
 
+10. **No coverage of runtime-specific top-level fields beyond agentskills.io v1** (§06-3.4). The v1.0 SKILL.md schema covers the agentskills.io v1 envelope subset plus `integrity` and `signatures`. Tier-1 consumers extend that surface — most visibly Claude Code, whose documented frontmatter adds 11 runtime-specific top-level fields (`when_to_use`, `argument-hint`, `arguments`, `disable-model-invocation`, `user-invocable`, `model`, `effort`, `context`, `agent`, `hooks`, `paths`, `shell`). Those are rejected at the top level by `unevaluatedProperties: false`. An author who needs them must hand-edit the compiled output, which exits MDA validation. The same shape applies in principle to other Tier-1 SKILL.md consumers (Codex, OpenCode, Hermes Agent, etc.) when they extend the envelope.
+
 ## Three root causes
 
-The nine gaps cluster into three categories. Each one has its own resolution path.
+The ten gaps cluster into three categories. Each one has its own resolution path.
 
 ### A. Reference implementation is still maturing
 
@@ -42,11 +44,11 @@ MDA doesn't promise behavior on the part of consumers it doesn't control. Items 
 
 ### C. Deliberate scope boundaries
 
-*Items 1 (no central registry), 8 (Sigstore conditional), 9 (no Cursor MDC / Windsurf / Continue / Aider coverage).*
+*Items 1 (no central registry), 8 (Sigstore conditional), 9 (no Cursor MDC / Windsurf / Continue / Aider coverage), 10 (no runtime-specific top-level fields).*
 
-These are design choices, not gaps to fill. v1.0 doesn't host a registry. Resolution stays operator-controlled. v1.0 doesn't take responsibility for Sigstore reachability. The contract specifies what to do when Sigstore is reachable; operators decide whether and how to wire it. v1.0 targets agentskills.io v1 plus AAIF, not every skill-format family in the 2026 ecosystem.
+These are design choices, not gaps to fill in v1.0. v1.0 doesn't host a registry. Resolution stays operator-controlled. v1.0 doesn't take responsibility for Sigstore reachability. The contract specifies what to do when Sigstore is reachable; operators decide whether and how to wire it. v1.0 targets agentskills.io v1 plus AAIF, not every skill-format family in the 2026 ecosystem, and not the per-runtime field extensions on top of the agentskills.io v1 envelope.
 
-Items 1 and 8 won't graduate. They describe the architectural boundary of what MDA controls. Item 9 may expand in a future minor release if observed adoption justifies new compile targets, per the §0.9 versioning policy. v1.0 makes no commitment.
+Items 1 and 8 won't graduate. They describe the architectural boundary of what MDA controls. Items 9 and 10 may expand in a future minor release if observed adoption justifies it, per the §0.9 versioning policy. v1.0 makes no commitment.
 
 ## What would move an item off this list
 
@@ -58,6 +60,7 @@ For categories A and B (items 2 through 7), explicit graduation criteria:
 - **Item 5 (`requires` routing).** Moves off when ≥1 multi-agent harness ships activation or dispatch routing keyed on standard `requires` fields.
 - **Item 6 (`CLAUDE.md`).** Moves off when cross-runtime adoption of `CLAUDE.md` is observed and a non-stub target schema is justified by use cases.
 - **Item 7 (`MCP-SERVER.md` Tier 2).** Moves off when ≥2 independent implementations consume the target as specified (§06-9).
+- **Item 10 (runtime-specific top-level fields).** v1.1 candidate. Moves off when the SKILL.md schema is extended to accept the 11 Claude-Code-specific top-level fields as passthrough (MDA does not impose semantics on runtime-owned fields), §06-3.2 / §06-3.3 / §06-3.4 are updated accordingly, and the compiler can relocate vendor-keyed source fields to top-level in the output. The same pattern, when justified by observed adoption, extends to AGENTS.md, MCP-SERVER.md, and CLAUDE.md targets.
 
 For category C (items 1 and 8), no graduation. Those describe the architectural boundary, not the development backlog.
 

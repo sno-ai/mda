@@ -76,7 +76,9 @@ metadata:
 ---
 ```
 
-When this source compiles to `pdf-tools/SKILL.md`, the frontmatter is preserved verbatim. The `metadata.claude-code` namespace is read directly by Claude Code at load time. The `metadata.codex` namespace is read directly by Codex CLI. The `metadata.hermes` namespace is read directly by Hermes Agent. The compiler itself touches only `metadata.mda`.
+When this source compiles to `pdf-tools/SKILL.md`, the frontmatter is preserved verbatim. The MDA compiler touches only `metadata.mda`. Each vendor namespace is **reserved** for its named consumer — `metadata.claude-code` for Claude Code, `metadata.codex` for Codex CLI, `metadata.hermes` for Hermes Agent — but whether and how each runtime reads its namespace is a per-runtime decision outside the MDA contract.
+
+As of v1.0, **no Tier-1 SKILL.md consumer is known to read its `metadata.<vendor>.*` namespace**. Runtimes that extend the agentskills.io v1 envelope do so via documented top-level fields, which are out of MDA v1.0 scope per §06-3.4. The namespace pattern is forward-looking: it exists so that a vendor opting in later has a stable, collision-free home, and so that authors who hand-edit compiled output have a recommended place for vendor-specific overrides. Authors should not assume current runtime behavior matches the namespace reservation.
 
 ## §04-7 Adding a new namespace
 
