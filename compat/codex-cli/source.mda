@@ -1,0 +1,29 @@
+---
+name: mda-compat-codex-cli
+description: MDA compatibility demonstration skill for Codex CLI. Compiled from compat/codex-cli/source.mda. Loading this skill confirms that an MDA-emitted SKILL.md is discovered and parsed by Codex CLI with the envelope subset of agentskills.io v1 fields honored.
+allowed-tools: Read
+metadata:
+  mda:
+    doc-id: 8e0a1c44-2b91-4d6e-9f7a-3c5d8e6f1a2b
+    title: MDA Compat Demo (Codex CLI)
+    version: "1.0.0"
+    tags: [compat, demo, codex-cli]
+---
+
+# MDA Compat Demo (Codex CLI)
+
+This skill exists to verify Codex CLI SKILL.md compatibility from an MDA-compiled output.
+
+Three things are true if Codex CLI discovers and loads this skill:
+
+1. The compiled `SKILL.md` parses under Codex CLI's loader (built on agentskills.io v1).
+2. The frontmatter `name` matches the package directory name (spec §06-2.1).
+3. The agentskills.io v1 envelope subset (`name`, `description`, `allowed-tools`) survives the round-trip from `.mda` source to compiled output to runtime ingest.
+
+Source: `compat/codex-cli/source.mda`. Compile: `mda compile compat/codex-cli/source.mda --target SKILL.md --out-dir compat/codex-cli/build --integrity`.
+
+What this does NOT prove:
+
+- That Codex CLI parses MDA-extended frontmatter under `metadata.mda.*` (the OpenAI docs do not document any such behavior, and we do not require it).
+- That signatures or integrity digests are verified at load time (no current runtime does that).
+- That non-standard top-level fields observed in some shipped Codex skills (for example `triggers:` arrays) are authored from MDA — they are not part of agentskills.io v1 and are out of MDA v1.0 scope.
