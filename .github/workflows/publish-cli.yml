@@ -6,7 +6,7 @@ on:
       - "v*.*.*"
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
@@ -64,3 +64,13 @@ jobs:
 
       - run: npm publish --provenance --access public
         working-directory: apps/cli
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --title "@markdown-ai/cli ${CLI_VERSION}" \
+            --generate-notes \
+            --latest \
+            --verify-tag

@@ -22,6 +22,9 @@ The user does not need to do anything for any of these steps. Do not ask
 which version number to use — for a publish-only request, increment the
 patch.
 
+CI also creates a GitHub Release for each tag (via `gh release create
+--generate-notes --latest`). No manual Release work needed.
+
 ### Auth — already configured, do not touch
 
 - npmjs.com has a Trusted Publisher binding on `@markdown-ai/cli`:
