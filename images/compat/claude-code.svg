@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 200" role="img" aria-label="Claude Code from Anthropic — drop-in compatible with MDA">
+  <style>
+    .name { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-weight: 700; font-size: 22px; fill: #ffffff; }
+    .eyebrow { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.12em; }
+    .vendor { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-weight: 600; font-size: 10px; letter-spacing: 0.14em; fill: #6e7681; }
+    .arrow { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-weight: 700; font-size: 18px; }
+  </style>
+  <rect x="0.5" y="0.5" width="239" height="199" rx="10" fill="#0d1117" stroke="#30363d"/>
+  <rect x="0" y="0" width="240" height="4" fill="#D97757"/>
+  <text class="eyebrow" x="20" y="30" fill="#D97757">DROP-IN COMPATIBLE</text>
+  <text class="arrow" x="220" y="32" fill="#D97757" text-anchor="end">↗</text>
+  <rect x="20" y="48" width="56" height="56" rx="12" fill="#191919"/>
+  <g transform="translate(32, 60) scale(1.33)" fill="#ffffff">
+    <path d="M17.3041 3.541h-3.6718l6.696 16.918H24Zm-10.6082 0L0 20.459h3.7442l1.3693-3.5527h7.0052l1.3693 3.5528h3.7442L10.5363 3.5409Zm-.3712 10.2232 2.2914-5.9456 2.2914 5.9456Z"/>
+  </g>
+  <text class="name" x="20" y="148">Claude Code</text>
+  <text class="vendor" x="20" y="170">FROM ANTHROPIC</text>
+</svg>

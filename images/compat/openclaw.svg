@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 240 200" role="img" aria-label="OpenClaw — drop-in compatible with MDA">
+  <style>
+    .name { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-weight: 700; font-size: 22px; fill: #ffffff; }
+    .eyebrow { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-weight: 700; font-size: 11px; letter-spacing: 0.12em; }
+    .vendor { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-weight: 600; font-size: 10px; letter-spacing: 0.14em; fill: #6e7681; }
+    .arrow { font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-weight: 700; font-size: 18px; }
+  </style>
+  <rect x="0.5" y="0.5" width="239" height="199" rx="10" fill="#0d1117" stroke="#30363d"/>
+  <rect x="0" y="0" width="240" height="4" fill="#EA580C"/>
+  <text class="eyebrow" x="20" y="30" fill="#EA580C">DROP-IN COMPATIBLE</text>
+  <text class="arrow" x="220" y="32" fill="#EA580C" text-anchor="end">↗</text>
+  <rect x="20" y="48" width="56" height="56" rx="12" fill="#ffffff"/>
+  <image href="logos/openclaw.jpg" xlink:href="logos/openclaw.jpg" x="22" y="50" width="52" height="52" preserveAspectRatio="xMidYMid meet"/>
+  <text class="name" x="20" y="148">OpenClaw</text>
+  <text class="vendor" x="20" y="170">2026 ECOSYSTEM</text>
+</svg>

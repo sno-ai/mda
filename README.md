@@ -32,6 +32,18 @@ You write one `.mda`. The compiler emits the rest.
                        drop-in compatible
 ```
 
+## Compatibility
+
+**Write your skill once. It drops into every major agent runtime — unchanged.**
+
+<a href="compat/claude-code/"><img src="images/compat/claude-code.svg" width="220" alt="Claude Code — drop-in compatible"></a>
+<a href="compat/codex-cli/"><img src="images/compat/codex-cli.svg" width="220" alt="Codex CLI — drop-in compatible"></a>
+<a href="compat/opencode/"><img src="images/compat/opencode.svg" width="220" alt="OpenCode — drop-in compatible"></a>
+<a href="compat/hermes/"><img src="images/compat/hermes.svg" width="220" alt="Hermes Agent — drop-in compatible"></a>
+<a href="compat/openclaw/"><img src="images/compat/openclaw.svg" width="220" alt="OpenClaw — drop-in compatible"></a>
+
+Five SKILL.md runtimes verified end-to-end with reproducible install kits in [`compat/`](compat/). Compiled `AGENTS.md` artifacts also drop into the AAIF ecosystem (Codex, Copilot, Cursor, Windsurf, Amp, Devin, Gemini CLI, VS Code, Jules, Factory), and at the documentation level into skills.sh and other 2026 SKILL.md consumers.
+
 And those four files can't say who signed them. The agent loading `SKILL.md` has no way to verify the content matches what you wrote, and the curator reviewing `AGENTS.md` has no way to know whose hands have been on it between merge and load. The standard frontmatter shapes have nowhere to put a content digest or a signature, so the trust decision quietly falls back to "we trust the repo, somehow."
 
 MDA carries a JCS-canonicalized `integrity.digest` and DSSE-enveloped, Sigstore-anchored `signatures[]` in the frontmatter itself. Both sides — the agent at load time and the human at review time — can make a real trust decision against the artifact in hand, not against a feeling about the repo. Tamper-evidence and signer verification ship in the contract, not as a later bolt-on.
@@ -93,27 +105,6 @@ metadata:
 ```
 
 Compiles to `pdf-tools/SKILL.md`. The source already sits in the strict target shape, with every MDA-extended field nested under `metadata.mda.*`, so the compile is essentially a rename. More worked examples live in [`examples/`](examples/) and [`docs/mda-examples/`](docs/mda-examples/).
-
-## Compatibility
-
-Verified end-to-end with the top 5 SKILL.md runtimes of 2026:
-
-[![Claude Code](https://img.shields.io/badge/Claude%20Code-compatible-D97757?style=for-the-badge&logo=anthropic&logoColor=white)](compat/claude-code/)
-[![Codex CLI](https://img.shields.io/badge/Codex%20CLI-compatible-10A37F?style=for-the-badge&logo=openai&logoColor=white)](compat/codex-cli/)
-[![OpenCode](https://img.shields.io/badge/OpenCode-compatible-3B82F6?style=for-the-badge)](compat/opencode/)
-[![Hermes Agent](https://img.shields.io/badge/Hermes%20Agent-compatible-F59E0B?style=for-the-badge)](compat/hermes/)
-[![OpenClaw](https://img.shields.io/badge/OpenClaw-compatible-EA580C?style=for-the-badge)](compat/openclaw/)
-
-Each badge links to a per-runtime kit under [`compat/`](compat/) with a reproducible `verify.sh`, an `install.sh` that lands an MDA-emitted `SKILL.md` in the runtime's discovery path, and `notes.md` documenting the empirical proof and known authoring gaps.
-
-A compiled `SKILL.md` is also loadable by the broader agentskills.io v1 ecosystem at the documentation level (no per-runtime kit yet):
-
-- **skills.sh / Skills Directory** — https://www.skillsdirectory.com/
-- **Cursor**, **Windsurf**, and other 2026 SKILL.md consumers
-
-A compiled `AGENTS.md` lands in the AAIF-aligned ecosystem (the Linux Foundation's Agentic AI Foundation): Codex CLI, GitHub Copilot, Cursor, Windsurf, Amp, Devin, Gemini CLI, VS Code, Jules, Factory.
-
-Per-vendor extensions live under reserved `metadata.<vendor>.*` namespaces. Loaders read only their own namespace, and consumers must not reject a document solely because it carries an unregistered one. See [`REGISTRY.md`](REGISTRY.md) for the namespace registry, standard `requires` keys, reserved Sigstore OIDC issuers, and reserved DSSE `payload-type` values.
 
 ## The Open Spec
 
