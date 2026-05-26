@@ -27,7 +27,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "24"
-          registry-url: "https://registry.npmjs.org"
           cache: "pnpm"
 
       - name: Verify release environment
@@ -65,5 +64,3 @@ jobs:
 
       - run: npm publish --provenance --access public
         working-directory: apps/cli
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
