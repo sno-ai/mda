@@ -62,5 +62,15 @@ jobs:
       - run: npm pack --dry-run --json
         working-directory: apps/cli
 
-      - run: npm publish --provenance --access public
+      - name: Diagnose OIDC environment
+        run: |
+          echo "GITHUB_ACTIONS=$GITHUB_ACTIONS"
+          echo "ACTIONS_ID_TOKEN_REQUEST_URL present: $([ -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}" ] && echo yes || echo no)"
+          echo "ACTIONS_ID_TOKEN_REQUEST_TOKEN present: $([ -n "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}" ] && echo yes || echo no)"
+          echo "--- npm config (filtered) ---"
+          npm config list -l 2>/dev/null | grep -iE "registry|auth|provenance|sigstore|trust|oidc" || true
+          echo "--- npm whoami probe ---"
+          npm whoami --registry https://registry.npmjs.org || echo "(whoami returned non-zero — expected if OIDC not yet exchanged)"
+
+      - run: npm publish --provenance --access public --loglevel=verbose
         working-directory: apps/cli

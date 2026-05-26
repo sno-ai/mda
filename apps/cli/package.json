@@ -1,6 +1,6 @@
 {
 	"name": "@markdown-ai/cli",
-	"version": "1.1.5",
+	"version": "1.1.6",
 	"description": "MDA command-line tools for authoring, validating, compiling, and checking Markdown AI artifacts.",
 	"license": "Apache-2.0",
 	"repository": {
