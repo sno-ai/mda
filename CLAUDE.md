@@ -17,13 +17,66 @@ publishing, or auth.** Everything below is settled. Just execute.
 6. `git push origin v<version>`
 7. `gh run watch $(gh run list --workflow=publish-cli.yml --limit 1 --json databaseId --jq '.[0].databaseId')`
 8. `npm view @markdown-ai/cli@<version> version` to confirm registry
+9. **Write real GitHub Release notes by hand and publish them.** See
+   "Release notes — non-negotiable" below. This step is part of the
+   release; the release is not done until the GitHub Release exists
+   with a written body.
 
 The user does not need to do anything for any of these steps. Do not ask
 which version number to use — for a publish-only request, increment the
-patch.
+patch. Do not ask whether to write release notes — always write them.
 
-CI also creates a GitHub Release for each tag (via `gh release create
---generate-notes --latest`). No manual Release work needed.
+### Release notes — non-negotiable
+
+The GitHub Release body **must** be hand-written for every version.
+`--generate-notes` produces a useless "Full Changelog: vA...vB" one-liner
+when there are no merged PRs between tags (which is most patch releases
+in this repo), so the workflow no longer creates the Release
+automatically. Writing the body is the agent's responsibility.
+
+Minimum required structure:
+
+```md
+## What's new
+
+<one sentence per user-facing change, lead with the change name in bold.
+example: **`mda demo`** — one command to see the four-artifact flow ...>
+
+## Other changes
+
+<bullet list of smaller things: docs, CI, internal>
+
+## Why the version jump (only if patches were skipped)
+
+<one paragraph explaining which version numbers were skipped and why>
+
+## Install / upgrade
+
+<copy-pasteable npm install + npx invocation>
+```
+
+Source for the notes: `git log --oneline <previous-shipped-tag>..v<new>
+-- apps/cli/` plus `git show <commit>` on anything that looks
+user-facing. Ignore `chore(cli): bump to ...` and pure-CI commits — they
+are not what users care about. Group by user-visible feature, not by
+commit.
+
+Write the body to a temp file, then:
+
+```sh
+gh release create v<version> \
+  --title "@markdown-ai/cli <version>" \
+  --notes-file /tmp/v<version>-notes.md \
+  --latest \
+  --verify-tag
+```
+
+(Use `gh release edit ... --notes-file` if the release already exists.)
+
+After creation, eyeball https://github.com/sno-ai/mda/releases/tag/v<version>
+once to confirm the body actually renders the way you expect. If it
+shows only "Full Changelog: vA...vB", the notes file was wrong — fix
+and re-edit.
 
 ### Auth — already configured, do not touch
 
