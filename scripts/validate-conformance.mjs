@@ -577,8 +577,13 @@ for (const entry of manifest.fixtures) {
 console.log(`\n${BOLD}3. Examples sanity${RESET}`);
 const sourceValidator = getValidator('schemas/frontmatter-source.schema.json');
 const skillValidator = getValidator('schemas/frontmatter-skill-md.schema.json');
+const sourceExamples = [
+	'examples/source-only/intro.mda',
+	'examples/source-only/node-tools.mda',
+	'examples/source-only/tweetclaw-social-workflow.mda',
+];
 
-for (const f of ['examples/source-only/intro.mda', 'examples/source-only/node-tools.mda']) {
+for (const f of sourceExamples) {
 	const fm = extractFrontmatter(readFileSync(join(REPO, f), 'utf8'));
 	if (sourceValidator(fm ?? {})) pass(`${f} valid against source schema`);
 	else

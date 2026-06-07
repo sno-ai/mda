@@ -1,0 +1,63 @@
+---
+name: tweetclaw-social-workflow
+description: MDA source for an OpenClaw-compatible TweetClaw workflow that collects X/Twitter evidence before drafting and keeps social-account writes behind explicit approval.
+title: TweetClaw Social Workflow
+doc-id: 31d4cf15-fd5b-41db-bd34-7bbf5a5cfe51
+author: MDA Example Contributors
+tags: [example, skill-md, openclaw, twitter, x-api, social-media]
+created-date: '2026-06-07T00:00:00Z'
+metadata:
+  mda:
+    version: '1.0.0'
+    requires:
+      runtime: ['openclaw>=2026.6.1', 'node>=22']
+      tools: ['Read', 'Bash']
+      network: ['registry.npmjs.org', 'xquik.com']
+      packages: ['@xquik/tweetclaw']
+  ai-script:
+    version: '1'
+    instructions: |
+      Use this document when an agent needs X/Twitter source evidence before drafting or reviewing social content.
+      Install and inspect TweetClaw through OpenClaw, keep credentials outside the skill package, and require operator approval before write-like actions.
+---
+
+# TweetClaw Social Workflow
+
+Use TweetClaw as an OpenClaw plugin when the agent needs reviewed X/Twitter
+source context before drafting, ranking, or scheduling social content. Install
+the runtime plugin from npm and inspect the loaded entry before using it:
+
+```bash
+openclaw plugins install npm:@xquik/tweetclaw
+openclaw plugins inspect tweetclaw --runtime --json
+```
+
+## Evidence First
+
+Collect evidence before drafting. Good read-first jobs include search tweets,
+search tweet replies, follower export, user lookup, media download, monitor
+review, webhook review, and giveaway draw context. Preserve source URLs, tweet
+IDs, author handles, timestamps, and query terms so reviewers can trace the
+draft back to public evidence[^evidence-context].
+
+## Approval Boundary
+
+Treat post tweets, post tweet replies, direct messages, media upload, monitor
+creation, webhook changes, giveaway draws, follows, profile edits, and deletes as
+write-like social-account actions. Ask OpenClaw to show the structured request
+and require one-time operator approval before each write-like call[^approval-boundary].
+
+## Runtime Responsibilities
+
+Keep the skill package declarative. Store API keys, signing keys, and account
+configuration in OpenClaw's local config or secret store, never in the MDA source
+or compiled `SKILL.md`. Let the downstream drafting, scheduler, calendar,
+analytics, or publishing system keep ownership of voice, copy, timing, and
+calendar health. TweetClaw supplies source context and approval-gated X/Twitter
+actions through OpenClaw[^openclaw-runtime].
+
+[^evidence-context]: {"rel-type": "supports", "doc-id": "pre-draft-social-evidence", "rel-desc": "TweetClaw read tools supply source evidence before drafting"}
+
+[^approval-boundary]: {"rel-type": "supports", "doc-id": "tweetclaw-approval-boundary", "rel-desc": "Write-like TweetClaw actions require explicit OpenClaw approval"}
+
+[^openclaw-runtime]: {"rel-type": "references", "doc-id": "openclaw-plugin-runtime", "rel-desc": "OpenClaw installs and inspects the TweetClaw plugin runtime"}
