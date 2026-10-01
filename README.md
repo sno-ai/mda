@@ -167,3 +167,4 @@ Contributions welcome. Major changes to the Open Spec or the vendor registry sho
 - Documentation site: https://mda.sno.dev
 - Spec discussion: https://github.com/sno-ai/mda/discussions
 - LLM-readable repository guide: [`llms.txt`](llms.txt)
+- Collaborative Specification Authoring: [MySpec](https://myspec.dev?utm_source=github&utm_medium=referral&utm_campaign=snoai-mda)
